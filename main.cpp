@@ -1,29 +1,17 @@
-#include <cstdlib>
-#include <vector>
-#include <unistd.h>
-#include <cstring>
-#include <iostream>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <poll.h>
-
-#define ERROR -1
-#define BUFF 10
+#include "Server.hpp"
 
 int	main(void) {
-	struct sockaddr_in	address;
-	int					server_fd;
-	int					new_socket;
-	socklen_t			addrlen = sizeof(address);
-	const int			PORT = 8080;
-	std::vector<struct pollfd> fds;
 
+	Server serv00;
+
+	serv00.set_server();
 	/*=======================================SET SERVER=====================================================*/
+	//creer le socket et le stocker dans un tableau
 	if (server_fd = socket(PF_INET, SOCK_STREAM, 0) == ERROR) {
 		std::cerr << "error: socket creation" << std::endl;
 		return(EXIT_FAILURE);
 	}
+	//set la structur sockaddr_in pour bind le server
 	memset((char *)&address, 0, sizeof(address));
 	address.sin_family = PF_INET;
 	address.sin_port = htons(PORT);
@@ -32,11 +20,13 @@ int	main(void) {
 		std::cerr << "error: socket bind" << std::endl;
 		return(EXIT_FAILURE);
 	}
+	//creer une structure pollfd pour y ajouter le socket du server
 	struct pollfd fd;
 	fd.fd = server_fd;
 	fd.events = POLLIN;
 	fds.push_back(fd);
 	/*=======================================SERVER ROUTINE=====================================================*/
+	int					new_socket;
 	while (1) {
 		if (poll(&fds[0], fds.size(), 0) != ERROR) {
 			/*==========partie connection client==========*/

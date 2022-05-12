@@ -1,22 +1,3 @@
-/*
-- TCP Server side
-    - socket
-    - bind
-	poll() {
-    - listen
-    - accept
-    - send
-    - recv
-	}
-
-	struct  pollfd
-	{
-	   int    fd;
-	   short  events;
-	   short  revents;
-	};
-*/
-
 #include <cstdlib>
 #include <vector>
 #include <unistd.h>
@@ -27,11 +8,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SEND_ERROR -1
-#define RECV_ERROR -1
-#define POLL_ERROR -1
+#define ERROR -1
 #define BUFF 10
 
 int	main(void) {
@@ -43,7 +20,7 @@ int	main(void) {
 	std::vector<struct pollfd> fds;
 
 	/*=======================================SET SERVER=====================================================*/
-	if (server_fd = socket(PF_INET, SOCK_STREAM, 0) == INVALID_SOCKET) {
+	if (server_fd = socket(PF_INET, SOCK_STREAM, 0) == ERROR) {
 		std::cerr << "error: socket creation" << std::endl;
 		return(EXIT_FAILURE);
 	}
@@ -51,7 +28,7 @@ int	main(void) {
 	address.sin_family = PF_INET;
 	address.sin_port = htons(PORT);
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
+	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == ERROR) {
 		std::cerr << "error: socket bind" << std::endl;
 		return(EXIT_FAILURE);
 	}
@@ -61,15 +38,15 @@ int	main(void) {
 	fds.push_back(fd);
 	/*=======================================SERVER ROUTINE=====================================================*/
 	while (1) {
-		if (poll(&fds[0], fds.size(), 0) != POLL_ERROR) {
+		if (poll(&fds[0], fds.size(), 0) != ERROR) {
 			/*==========partie connection client==========*/
-			if (fds[0].revents == POLLIN ) {
+			if (fds[0].revents == POLLIN ) { //TODO:not sur
 				//listen puis accept le nouveau client si POLLIN
-				if (listen(server_fd, BUFF) == -1) { //ECONNREFUSED
+				if (listen(server_fd, BUFF) == ERROR) { //ECONNREFUSED
 					std::cerr << "error: socket listen" << std::endl;
 					exit(EXIT_FAILURE);
 				}
-				if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) == INVALID_SOCKET) {
+				if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) == ERROR) {
 					std::cerr << "error: socket accept" << std::endl;
 					exit(EXIT_FAILURE);
 				}
@@ -78,6 +55,7 @@ int	main(void) {
 				}
 			}
 			/*==========partie requete client==========*/
+			// for()
 				//iter sur la liste des client pour une action en fonction des signaux sortant:
 					//client recois
 					//client envoi
